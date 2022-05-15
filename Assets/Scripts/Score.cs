@@ -8,9 +8,22 @@ public class Score : MonoBehaviour
     [SerializeField]
     private Text scoreText;
 
+    private float tarePosition;
+
+    private void Start()
+    {
+        tarePosition = player.position.z;
+    }
+
     // Update is called once per frame
     void Update()
     {
-        scoreText.text = player.position.z.ToString("0");
+        if (!FindObjectOfType<GameController>().gameOver)
+        scoreText.text = (player.position.z - tarePosition).ToString("0");
+    }
+
+    public void SetText(string newText)
+    {
+        scoreText.text = newText;
     }
 }

@@ -10,7 +10,8 @@ public class PlayerCollision : MonoBehaviour
     {
         if (collision.collider.tag == "Obstacle")
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            //FindObjectOfType<Score>().SetText("Game Over");
+            //FindObjectOfType<GameController>().EndGame();
         }
         
     }
