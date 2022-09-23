@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour {
@@ -11,27 +9,15 @@ public class PlayerMovement : MonoBehaviour {
     [SerializeField]
     private int forwardForce = 2000;
     [SerializeField]
-    private int sidewaystForce = 2000;
-    // Stand up speed
-    [SerializeField]
-    private float standUpSpeed = 1.0f;
+    private int sidewaysForce = 2000;
 
-    Vector3 m_EulerAngleVelocity;
+    public float getUpSpeed = 30f;
 
-    // Start is called before the first frame update
-    //void Start()
-    //{
-    //    //Changing value of component
-    //    //rb.useGravity = false;
-    //    rb.AddForce(0, 200, 500);
-    //}
+    public float upAngle;
 
-    // Update is called once per frame
-    void Start()
-    {
-        //Set the angular velocity of the Rigidbody (rotating around the Y axis, 100 deg/sec)
-        m_EulerAngleVelocity = new Vector3(0, 100, 0);
-    }
+    private bool standingUp;
+
+    private float speedLimit = 0.1f;
 
     void FixedUpdate()
     {
@@ -39,62 +25,123 @@ public class PlayerMovement : MonoBehaviour {
         // Time.deltaTime makes the change being adaptive to the actual amout of FPS
         // This means the object will have the same speed on different machines
 
-        //rb.AddForce(0, 0, 2000 * Time.deltaTime);
-        // Simple player key movement
-        Quaternion deltaRotation = Quaternion.Euler(m_EulerAngleVelocity * Time.fixedDeltaTime);
-        if(Input.GetKey(KeyCode.Space)) //stand up
-        {
-            transform.rotation = Quaternion.identity;
-        }
-        
+        //var hoizontalAxis = Input.GetAxis("Horizontal");
+        //var verticalAxis = Input.GetAxis("Vertical");
+        //rb.AddForce(sidewaysForce * Time.deltaTime * hoizontalAxis, 0, 0);
+        //rb.AddForce(0, 0, forwardForce * Time.deltaTime * verticalAxis);
+
+        upAngle = Vector3.Angle(gameObject.transform.up, Vector3.up);
+
+        //if (upAngle >= angleLimit && velocity <= 0.1) //stand up
+        //{
+        //    if (standingUp == false)
+        //    {
+        //        standingUp = true;
+        //    }
+        //} 
+        //if (standingUp)
+        //{
+        //    StandUp();
+        //    if (upAngle <= 10f)
+        //    {
+        //        standingUp = false;
+        //        rb.useGravity = true;
+        //        rb.rotation = Quaternion.identity;
+        //        rb.velocity = Vector3.zero;
+        //        rb.Sleep();
+        //    }
+        //}
+
         if (Input.GetKey("d"))
         {
-            rb.AddForce(sidewaystForce * Time.deltaTime, 0, 0);
-            
+            //if (CheckIfFallen())
+            //{
+            //    if (!standingUp)
+            //    {
+            //        standingUp = true;
+            //    }
+            //    StandUp();
+
+            //} else if (!standingUp)
+            //{
+                rb.AddForce(sidewaysForce * Time.deltaTime, 0, 0);
+            //}
         }  
         if (Input.GetKey("a"))
         {
-            rb.AddForce(-sidewaystForce * Time.deltaTime, 0, 0);
-            rb.MoveRotation(rb.rotation * deltaRotation);
+            //if (CheckIfFallen())
+            //{
+            //    if (!standingUp)
+            //    {
+            //        standingUp = true;
+            //    }
+            //    StandUp();
+
+            //}
+            //else if (!standingUp)
+            //{
+                rb.AddForce(-sidewaysForce * Time.deltaTime, 0, 0);
+            //}
         } 
         if (Input.GetKey("w"))
         {
-            rb.AddForce(0, 0, forwardForce * Time.deltaTime);
+            //if (CheckIfFallen())
+            //{
+            //    if (!standingUp)
+            //    {
+            //        standingUp = true;
+            //    }
+            //    StandUp();
+
+            //}
+            //else if (!standingUp)
+            //{
+                rb.AddForce(0, 0, forwardForce * Time.deltaTime);
+            //}
         }
         if (Input.GetKey("s"))
         {
-            rb.AddForce(0, 0, -forwardForce * Time.deltaTime);
+            //if (CheckIfFallen())
+            //{
+            //    if (!standingUp)
+            //    {
+            //        standingUp = true;
+            //    }
+            //    StandUp();
+
+            //}
+            //else if (!standingUp)
+            //{
+                rb.AddForce(0, 0, -forwardForce * Time.deltaTime);
+            //}
         }
 
-         if (rb.position.y < -1f)
+        if(Input.GetKey("space"))
         {
-            //FindObjectOfType<Score>().SetText("Game Over");
-            //FindObjectOfType<GameController>().EndGame();
+            rb.useGravity = false;
         }
-
-        //Quaternion startRotation = transform.rotation;
-        //if (transform.rotation.x != 0 || transform.rotation.y != 0 || transform.rotation.z != 0)
-        //{
-        //    rb.useGravity = false;
-        //} else
-        //{
-        //    rb.useGravity = true;
-        //}
-        //Quaternion endRotation = new Quaternion(0f, 0f, 0f, transform.rotation.w);
-        //transform.rotation = Quaternion.Lerp(startRotation, endRotation, Time.deltaTime * standUpSpeed);
-
-        Quaternion upRot = Quaternion.FromToRotation(transform.up, Vector3.up);
-        upRot *= transform.rotation;
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, upRot, Time.deltaTime * standUpSpeed);
-
-        //StandUp();
     }
 
-    public void StandUp()
+    private void StandUp()
     {
-        //Quaternion startRotation = transform.rotation;
-        //Quaternion endRotation = new Quaternion(0.0F, transform.rotation.y, 0.0F, transform.rotation.w);
-        //transform.rotation = Quaternion.Slerp(startRotation, endRotation, Time.deltaTime);
+        Vector3 p = rb.position;
+        rb.useGravity = false;
+        rb.rotation = Quaternion.Lerp(rb.rotation, Quaternion.identity, getUpSpeed * Time.deltaTime);
+        rb.position = p;
+        if (upAngle <= 10f)
+        {
+            rb.rotation = Quaternion.identity;
+            rb.velocity = Vector3.zero;
+            //rb.Sleep();
+            rb.useGravity = true;
+            standingUp = false;
+        }
+
+    }
+
+    private bool CheckIfFallen()
+    {
+        return (rb.velocity.magnitude <= speedLimit && upAngle != 0) || standingUp;
     }
 }
 
